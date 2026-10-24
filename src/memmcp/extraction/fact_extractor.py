@@ -18,6 +18,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass, field
+from typing import Any
 
 from ..config import Settings
 
@@ -32,8 +33,6 @@ class ExtractedFact:
     importance: float = 0.5
     key: str | None = None
     tags: list[str] = field(default_factory=list)
-
-
 
 
 # --------------------------------------------------------------------------
@@ -191,11 +190,26 @@ JSON:"""
 # Key normalisation: clamp LLM-generated keys to the allowed vocabulary.
 # --------------------------------------------------------------------------
 _ALLOWED_KEYS: set[str] = {
-    "user:name", "user:email", "user:company", "user:team", "user:role",
-    "user:language", "user:framework", "user:database", "user:cache",
-    "user:cloud", "user:editor", "user:os", "user:current_project",
-    "user:testing", "user:ci_cd", "user:auth", "user:styling",
-    "project:purpose", "project:architecture", "project:deployment",
+    "user:name",
+    "user:email",
+    "user:company",
+    "user:team",
+    "user:role",
+    "user:language",
+    "user:framework",
+    "user:database",
+    "user:cache",
+    "user:cloud",
+    "user:editor",
+    "user:os",
+    "user:current_project",
+    "user:testing",
+    "user:ci_cd",
+    "user:auth",
+    "user:styling",
+    "project:purpose",
+    "project:architecture",
+    "project:deployment",
     "project:status",
 }
 
@@ -309,6 +323,7 @@ class OpenAIExtractor:
     def _get_client(self):
         if self._client is None:
             from openai import OpenAI  # lazy import
+
             self._client = OpenAI(api_key=self._api_key)
         return self._client
 
@@ -335,6 +350,7 @@ class AnthropicExtractor:
     def _get_client(self):
         if self._client is None:
             import anthropic  # lazy import
+
             self._client = anthropic.Anthropic(api_key=self._api_key)
         return self._client
 
@@ -352,14 +368,13 @@ class AnthropicExtractor:
 
 def _conversation_to_text(conversation: str | list[dict]) -> str:
     if isinstance(conversation, list):
-        return "\n".join(
-            f"{t.get('role', 'user')}: {t.get('content', '')}" for t in conversation
-        )
+        return "\n".join(f"{t.get('role', 'user')}: {t.get('content', '')}" for t in conversation)
     return str(conversation)
 
 
 class RuleExtractor:
     """A naive rule-based extractor for offline tests."""
+
     def extract(self, conversation: str | list[dict]) -> list[ExtractedFact]:
         text = _conversation_to_text(conversation)
         # Just split by dot and return naive facts.

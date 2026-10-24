@@ -106,8 +106,14 @@ def remember(
     retired), or blocked (PII policy refused it).
     """
     result = _manager.remember(
-        content, project_name=project_name, importance=importance, key=key,
-        tags=tags, source=tool, ttl_days=ttl_days, actor=tool,
+        content,
+        project_name=project_name,
+        importance=importance,
+        key=key,
+        tags=tags,
+        source=tool,
+        ttl_days=ttl_days,
+        actor=tool,
     )
     return result.summary()
 
@@ -149,7 +155,9 @@ def ingest_conversation(
 
     Returns counts of extracted/created/merged/superseded facts.
     """
-    return _manager.ingest(conversation, project_name=project_name, source=tool, actor=tool).summary()
+    return _manager.ingest(
+        conversation, project_name=project_name, source=tool, actor=tool
+    ).summary()
 
 
 # ==========================================================================
@@ -194,7 +202,11 @@ def recall(
     ``project_name`` so you can tell which project it belongs to.
     """
     scored = _manager.recall(
-        query, project_name=project_name, top_k=top_k, token_budget=token_budget, actor=tool,
+        query,
+        project_name=project_name,
+        top_k=top_k,
+        token_budget=token_budget,
+        actor=tool,
     )
     lines = []
     for s in scored:
@@ -242,8 +254,10 @@ def get_project_context(
     their content, key, and importance. Only non-empty categories appear.
     """
     return _manager.get_project_context(
-        project_name=project_name, categories=categories,
-        detail_level=detail_level, actor=tool,
+        project_name=project_name,
+        categories=categories,
+        detail_level=detail_level,
+        actor=tool,
     )
 
 
@@ -276,7 +290,10 @@ def ingest_codebase_summary(
     Returns counts of extracted/created/merged/superseded facts.
     """
     result = _manager.ingest_codebase(
-        summary, project_name=project_name, source="codebase_scan", actor=tool,
+        summary,
+        project_name=project_name,
+        source="codebase_scan",
+        actor=tool,
     )
     return result.summary()
 
@@ -344,7 +361,11 @@ def update_memory(
 ) -> dict[str, Any]:
     """Edit an existing memory by id (re-embeds if the content changes)."""
     memory = _manager.update(
-        memory_id, content=content, importance=importance, tags=tags, ttl_days=ttl_days,
+        memory_id,
+        content=content,
+        importance=importance,
+        tags=tags,
+        ttl_days=ttl_days,
     )
     if memory is None:
         return {"ok": False, "error": f"No memory with id {memory_id!r}"}

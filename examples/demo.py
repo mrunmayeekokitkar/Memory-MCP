@@ -54,7 +54,9 @@ def main() -> None:
         print(f"    - {m.content}  (key={m.key})")
 
     banner("3. Selective, ranked recall (surface the few facts that matter)")
-    hits = mem.recall("what database and language should I use here?", project_name="payments", top_k=3)
+    hits = mem.recall(
+        "what database and language should I use here?", project_name="payments", top_k=3
+    )
     for h in hits:
         s = h.summary()
         print(f"  score={s['score']:.3f}  {s['content']}")

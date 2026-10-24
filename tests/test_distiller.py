@@ -16,6 +16,7 @@ def _distiller(judge=None) -> Distiller:
 
 # ---- Original tests (no judge) ----
 
+
 def test_novel_fact_is_created():
     d = _distiller()
     new = Memory(content="User uses Postgres.", key="user:database")
@@ -50,6 +51,7 @@ def test_same_key_different_value_supersedes():
 
 
 # ---- LLM judge integration tests ----
+
 
 def _mock_judge(verdict: str, reason: str = "test") -> MagicMock:
     """Create a mock ConflictJudge that returns a fixed verdict."""

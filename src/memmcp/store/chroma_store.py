@@ -87,10 +87,12 @@ class ChromaVectorStore(VectorStore):
 
         # Build the where filter: match the given project OR global (empty).
         if project_name is not None:
-            where = {"$or": [
-                {"project_name": {"$eq": project_name}},
-                {"project_name": {"$eq": ""}},
-            ]}
+            where = {
+                "$or": [
+                    {"project_name": {"$eq": project_name}},
+                    {"project_name": {"$eq": ""}},
+                ]
+            }
         else:
             where = {"project_name": {"$eq": ""}}
 
@@ -146,10 +148,12 @@ class ChromaVectorStore(VectorStore):
 
     def all(self, project_name: str | None = None, include_inactive: bool = True) -> list[Memory]:
         if project_name is not None:
-            where = {"$or": [
-                {"project_name": {"$eq": project_name}},
-                {"project_name": {"$eq": ""}},
-            ]}
+            where = {
+                "$or": [
+                    {"project_name": {"$eq": project_name}},
+                    {"project_name": {"$eq": ""}},
+                ]
+            }
         else:
             where = None
         res = self._collection.get(where=where, include=["metadatas", "embeddings"])

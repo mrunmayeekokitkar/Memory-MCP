@@ -32,7 +32,7 @@ class MemoryManager:
         self.settings.ensure_dirs()
 
         self.embedder = build_embedder(self.settings)
-        self.store = build_store(self.settings) 
+        self.store = build_store(self.settings)
         self.ranker = Ranker(
             weights=self.settings.ranking_weights(),
             recency_halflife_days=self.settings.recency_halflife_days,
@@ -45,6 +45,7 @@ class MemoryManager:
                 judge = ConflictJudge(self.settings)
             except Exception:
                 import logging
+
                 logging.getLogger(__name__).warning(
                     "Could not initialise ConflictJudge; "
                     "distiller will run without LLM conflict resolution.",
@@ -87,7 +88,9 @@ class MemoryManager:
         if result.has_pii:
             if policy == "block":
                 self.audit.record(
-                    "store_blocked", actor=actor, project_name=project_name,
+                    "store_blocked",
+                    actor=actor,
+                    project_name=project_name,
                     details={"pii": result.types},
                 )
                 return AddResult("blocked", None, note=f"PII detected: {result.types}")
@@ -119,8 +122,7 @@ class MemoryManager:
         same_key = [
             m
             for m in self.store.all(project_name=memory.project_name, include_inactive=False)
-            if memory.key and m.key == memory.key
-            and m.project_name == memory.project_name
+            if memory.key and m.key == memory.key and m.project_name == memory.project_name
         ]
 
         decision = self.distiller.decide(memory, similar, same_key)
@@ -132,7 +134,10 @@ class MemoryManager:
             target.touch()
             self.store.upsert(target)
             self.audit.record(
-                "merge", actor=actor, project_name=memory.project_name, memory_id=target.id,
+                "merge",
+                actor=actor,
+                project_name=memory.project_name,
+                memory_id=target.id,
                 details={"reason": decision.reason, "similarity": round(decision.similarity, 3)},
             )
             return AddResult("merged", target, note=decision.reason)
@@ -150,7 +155,10 @@ class MemoryManager:
             memory.version = max_version
             self.store.upsert(memory)
             self.audit.record(
-                "supersede", actor=actor, project_name=memory.project_name, memory_id=memory.id,
+                "supersede",
+                actor=actor,
+                project_name=memory.project_name,
+                memory_id=memory.id,
                 details={"reason": decision.reason, "superseded": superseded_ids},
             )
             return AddResult("superseded", memory, superseded_ids, decision.reason)
@@ -158,7 +166,10 @@ class MemoryManager:
         # Default: create.
         self.store.upsert(memory)
         self.audit.record(
-            "create", actor=actor, project_name=memory.project_name, memory_id=memory.id,
+            "create",
+            actor=actor,
+            project_name=memory.project_name,
+            memory_id=memory.id,
             details={"key": memory.key, "pii": memory.pii_types},
         )
         return AddResult("created", memory, note=decision.reason)
@@ -187,7 +198,9 @@ class MemoryManager:
                 )
             )
         self.audit.record(
-            "ingest", actor=actor, project_name=project_name,
+            "ingest",
+            actor=actor,
+            project_name=project_name,
             details={"extracted": len(facts), "stored": len(results)},
         )
         return IngestResult(extracted=len(facts), stored=results)
@@ -231,7 +244,9 @@ class MemoryManager:
             self.store.upsert(item.memory)
 
         self.audit.record(
-            "recall", actor=actor, project_name=project_name,
+            "recall",
+            actor=actor,
+            project_name=project_name,
             details={
                 "query_chars": len(query),
                 "returned": [i.memory.id for i in packed],
@@ -269,7 +284,9 @@ class MemoryManager:
             scanned = self.pii.scan(content.strip())
             if scanned.has_pii and self.settings.pii_policy == "block":
                 return memory  # refuse the edit; leave original untouched
-            memory.content = scanned.redacted if self.settings.pii_policy == "redact" else content.strip()
+            memory.content = (
+                scanned.redacted if self.settings.pii_policy == "redact" else content.strip()
+            )
             memory.pii_types = scanned.types if scanned.has_pii else []
             memory.embedding = self.embedder.embed(memory.content)
         if importance is not None:
@@ -281,7 +298,9 @@ class MemoryManager:
         memory.version += 1
         memory.updated_at = memory.last_accessed_at
         self.store.upsert(memory)
-        self.audit.record("update", actor=actor, project_name=memory.project_name, memory_id=memory.id)
+        self.audit.record(
+            "update", actor=actor, project_name=memory.project_name, memory_id=memory.id
+        )
         return memory
 
     def list_memories(
@@ -344,7 +363,10 @@ class MemoryManager:
             for keeper in kept:
                 if keeper.project_name != mem.project_name or mem.embedding is None:
                     continue
-                if cosine_similarity(keeper.embedding, mem.embedding) >= self.settings.dedup_threshold:
+                if (
+                    cosine_similarity(keeper.embedding, mem.embedding)
+                    >= self.settings.dedup_threshold
+                ):
                     duplicate_of = keeper
                     break
             if duplicate_of is not None:
@@ -387,9 +409,7 @@ class MemoryManager:
         """
         from .models import CATEGORIES, _category_from_key
 
-        active = [
-            m for m in self.store.all(project_name=project_name, include_inactive=False)
-        ]
+        active = [m for m in self.store.all(project_name=project_name, include_inactive=False)]
 
         # Group by category.
         grouped: dict[str, list[dict[str, Any]]] = {}
@@ -425,11 +445,13 @@ class MemoryManager:
             result["other"] = grouped["other"]
 
         self.audit.record(
-            "project_context", actor=actor,
+            "project_context",
+            actor=actor,
             project_name=project_name,
-            details={"categories": list(result.keys()), "total_facts": sum(
-                len(v) for v in result.values() if isinstance(v, list)
-            )},
+            details={
+                "categories": list(result.keys()),
+                "total_facts": sum(len(v) for v in result.values() if isinstance(v, list)),
+            },
         )
         return result
 

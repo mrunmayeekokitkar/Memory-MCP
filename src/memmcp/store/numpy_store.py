@@ -121,11 +121,7 @@ class NumpyVectorStore(VectorStore):
         include_inactive: bool = False,
     ) -> list[tuple[Memory, float]]:
         with self._lock:
-            candidates = [
-                m
-                for m in self._memories.values()
-                if include_inactive or m.is_active
-            ]
+            candidates = [m for m in self._memories.values() if include_inactive or m.is_active]
             if not candidates:
                 return []
 

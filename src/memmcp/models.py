@@ -14,7 +14,6 @@ from dataclasses import asdict, dataclass, field
 from typing import Any
 
 
-
 # ---------------------------------------------------------------------------
 # Entity categories — the ontology that turns flat facts into structured
 # project knowledge.  A memory's ``key`` prefix maps to one of these.
@@ -32,14 +31,25 @@ CATEGORIES: dict[str, str] = {
 
 # Maps key prefixes to category names for the Memory.category property.
 _KEY_TO_CATEGORY: dict[str, str] = {
-    "user:name": "identity", "user:email": "identity", "user:company": "identity",
-    "user:team": "identity", "user:role": "identity",
-    "user:language": "stack", "user:framework": "stack", "user:database": "stack",
-    "user:cache": "stack", "user:cloud": "stack", "user:editor": "stack",
-    "user:os": "stack", "user:testing": "stack", "user:ci_cd": "stack",
-    "user:auth": "stack", "user:styling": "stack",
+    "user:name": "identity",
+    "user:email": "identity",
+    "user:company": "identity",
+    "user:team": "identity",
+    "user:role": "identity",
+    "user:language": "stack",
+    "user:framework": "stack",
+    "user:database": "stack",
+    "user:cache": "stack",
+    "user:cloud": "stack",
+    "user:editor": "stack",
+    "user:os": "stack",
+    "user:testing": "stack",
+    "user:ci_cd": "stack",
+    "user:auth": "stack",
+    "user:styling": "stack",
     "user:current_project": "project",
-    "project:purpose": "project", "project:architecture": "project",
+    "project:purpose": "project",
+    "project:architecture": "project",
     "project:deployment": "project",
     "project:status": "status",
 }
@@ -157,9 +167,7 @@ class Memory:
         tags = meta.get("tags") or ""
         pii = meta.get("pii_types") or ""
         meta["tags"] = [t for t in tags.split(",") if t] if isinstance(tags, str) else list(tags)
-        meta["pii_types"] = (
-            [t for t in pii.split(",") if t] if isinstance(pii, str) else list(pii)
-        )
+        meta["pii_types"] = [t for t in pii.split(",") if t] if isinstance(pii, str) else list(pii)
         # Drop any unknown keys so the dataclass constructor stays happy.
         allowed = {f for f in cls.__dataclass_fields__}  # type: ignore[attr-defined]
         clean = {k: v for k, v in meta.items() if k in allowed}

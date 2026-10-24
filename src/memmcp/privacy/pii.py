@@ -26,7 +26,9 @@ class PIIResult:
 _PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
     (
         "private_key",
-        re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH |PGP )?PRIVATE KEY-----[\s\S]+?-----END[^-]+-----"),
+        re.compile(
+            r"-----BEGIN (?:RSA |EC |OPENSSH |PGP )?PRIVATE KEY-----[\s\S]+?-----END[^-]+-----"
+        ),
         "[REDACTED_PRIVATE_KEY]",
     ),
     ("aws_access_key", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b"), "[REDACTED_AWS_KEY]"),
@@ -68,6 +70,7 @@ class PIIScanner:
         found: list[str] = []
         redacted = text
         for pii_type, pattern, placeholder in _PATTERNS:
+
             def _replace(match: re.Match[str]) -> str:
                 if pii_type not in found:
                     found.append(pii_type)

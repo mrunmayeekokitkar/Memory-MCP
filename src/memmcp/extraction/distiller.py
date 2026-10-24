@@ -83,16 +83,14 @@ class Distiller:
                 return DistillDecision("merge", [mem], 1.0, "identical content")
             if sim >= self.dedup_threshold and sim > best_sim:
                 best_mem, best_sim = mem, sim
-                
+
         if best_mem is not None:
             return DistillDecision("merge", [best_mem], best_sim, "near-duplicate")
 
         # 3) Same conflict key, different content -> supersede stale beliefs.
         if new_memory.key:
             conflicts = [
-                m
-                for m in same_key
-                if m.id != new_memory.id and _norm(m.content) != new_norm
+                m for m in same_key if m.id != new_memory.id and _norm(m.content) != new_norm
             ]
             if conflicts:
                 return DistillDecision(
@@ -119,7 +117,9 @@ class Distiller:
             )
             logger.info(
                 "LLM judge: %s (sim=%.3f) — %s",
-                result.verdict, closest_sim, result.reason,
+                result.verdict,
+                closest_sim,
+                result.reason,
             )
             if result.verdict == "CONTRADICTION":
                 return DistillDecision(

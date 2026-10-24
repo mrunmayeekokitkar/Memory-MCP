@@ -9,7 +9,7 @@ Covers:
 """
 
 from memmcp.extraction.fact_extractor import normalize_key, _parse_llm_json
-from memmcp.models import Memory, CATEGORIES, _category_from_key
+from memmcp.models import Memory, CATEGORIES
 
 
 # =========================================================================
@@ -29,7 +29,10 @@ class TestNormalizeKeyDynamic:
         assert normalize_key("project:domain:payment_intent") == "project:domain:payment_intent"
 
     def test_debt_key_passes_through(self):
-        assert normalize_key("project:debt:notification_polling") == "project:debt:notification_polling"
+        assert (
+            normalize_key("project:debt:notification_polling")
+            == "project:debt:notification_polling"
+        )
 
     def test_empty_dynamic_key_is_dropped(self):
         # "project:module:" with no name should not be accepted.
@@ -82,7 +85,9 @@ class TestMemoryCategory:
         assert m.category == "decision"
 
     def test_domain_category(self):
-        m = Memory(content="PaymentIntent is a pending charge.", key="project:domain:payment_intent")
+        m = Memory(
+            content="PaymentIntent is a pending charge.", key="project:domain:payment_intent"
+        )
         assert m.category == "domain"
 
     def test_status_category(self):
@@ -111,7 +116,16 @@ class TestMemoryCategory:
 # CATEGORIES constant
 # =========================================================================
 def test_all_expected_categories_present():
-    expected = {"identity", "stack", "project", "module", "workflow", "decision", "domain", "status"}
+    expected = {
+        "identity",
+        "stack",
+        "project",
+        "module",
+        "workflow",
+        "decision",
+        "domain",
+        "status",
+    }
     assert set(CATEGORIES.keys()) == expected
 
 
@@ -160,7 +174,9 @@ class TestGetProjectContext:
     def test_groups_by_category(self, manager):
         manager.remember("User uses Postgres.", key="user:database", importance=0.8)
         manager.remember("Module auth handles JWTs.", key="project:module:auth", importance=0.8)
-        manager.remember("Project purpose is a payments service.", key="project:purpose", importance=0.9)
+        manager.remember(
+            "Project purpose is a payments service.", key="project:purpose", importance=0.9
+        )
 
         ctx = manager.get_project_context()
         assert "stack" in ctx
@@ -218,9 +234,7 @@ class TestGetProjectContext:
 class TestIngestCodebase:
     def test_ingests_and_stores_facts(self, manager):
         description = (
-            "I use Postgres for the database. "
-            "We're building a payments API. "
-            "I prefer TypeScript."
+            "I use Postgres for the database. We're building a payments API. I prefer TypeScript."
         )
         result = manager.ingest_codebase(description, project_name="payments")
         assert result.extracted >= 2
@@ -247,11 +261,13 @@ class TestProjectKeyConflicts:
     def test_architecture_supersedes(self, manager):
         manager.remember(
             "Project uses monolithic architecture.",
-            key="project:architecture", importance=0.85,
+            key="project:architecture",
+            importance=0.85,
         )
         result = manager.remember(
             "Project uses microservices architecture.",
-            key="project:architecture", importance=0.85,
+            key="project:architecture",
+            importance=0.85,
         )
         assert result.action == "superseded"
         active = manager.list_memories(include_inactive=False)

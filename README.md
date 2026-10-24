@@ -227,15 +227,6 @@ Memory-MCP/
 
 ---
 
-## Author & Maintainer
-
-- **Author**: Mrunmayee Kokitkar
-- **Email**: [mrunmayee.kokitkar@gmail.com](mailto:mrunmayee.kokitkar@gmail.com)
-- **Contact**: +91 7588326720
-- **GitHub Repository**: [https://github.com/mrunmayeekokitkar/Memory-MCP](https://github.com/mrunmayeekokitkar/Memory-MCP)
-
----
-
 ## License
 
 This project is licensed under the MIT License.

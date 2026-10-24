@@ -74,7 +74,9 @@ def _parse_judge_response(text: str) -> JudgeResult:
             data = json.loads(match.group(0))
         else:
             logger.warning("Judge response was not valid JSON: %s", text[:200])
-            return JudgeResult(verdict="COMPATIBLE", reason="parse failure — defaulting to compatible")
+            return JudgeResult(
+                verdict="COMPATIBLE", reason="parse failure — defaulting to compatible"
+            )
 
     verdict = str(data.get("verdict", "COMPATIBLE")).upper().strip()
     reason = str(data.get("reason", ""))
@@ -103,12 +105,14 @@ class ConflictJudge:
     def _get_openai_client(self):
         if self._client is None:
             from openai import OpenAI
+
             self._client = OpenAI(api_key=self._settings.openai_api_key)
         return self._client
 
     def _get_anthropic_client(self):
         if self._client is None:
             import anthropic
+
             self._client = anthropic.Anthropic(api_key=self._settings.anthropic_api_key)
         return self._client
 
